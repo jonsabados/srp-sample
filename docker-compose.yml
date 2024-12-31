@@ -1,0 +1,10 @@
+services:
+  srp-postgres:
+    image: postgres:17.2
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+networks:
+  main: {}
