@@ -1,6 +1,4 @@
-package bbom
-
-import "time"
+package srp
 
 type Creature struct {
 	ID          int64
@@ -11,5 +9,4 @@ type Creature struct {
 type CreatureLookupResult struct {
 	ResultFound bool
 	Creature    Creature
-	timestamp   time.Time
 }

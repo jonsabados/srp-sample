@@ -8,12 +8,6 @@ import (
 	"time"
 )
 
-type CreatureLookupResult struct {
-	ResultFound bool
-	Creature    Creature
-	timestamp   time.Time
-}
-
 type CachingCreatureRepo struct {
 	db            *sql.DB
 	cacheDuration time.Duration

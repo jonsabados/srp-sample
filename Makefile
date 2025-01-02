@@ -29,3 +29,11 @@ migrate:
 
 .PHONY: rebuild-postgres-db
 rebuild-postgres-db: postgres-docker-rm postgres-docker-start migrate
+
+.PHONY: mocks
+mocks: ## generate mocks for tests
+	mockery
+
+.PHONY: test
+test:
+	@ go test -v -coverprofile=coverprofile.out -covermode=count ./...

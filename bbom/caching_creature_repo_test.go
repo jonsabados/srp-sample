@@ -62,25 +62,6 @@ func TestCachingCreatureRepo_CreateCreature(t *testing.T) {
 	assert.False(t, result.ResultFound)
 }
 
-func openTestDBConnection(t *testing.T) *sql.DB {
-	dbCfg := struct {
-		Host     string `envconfig:"POSTGRES_HOST" default:"127.0.0.1"`
-		User     string `envconfig:"POSTGRES_USER" default:"postgres"`
-		Password string `envconfig:"POSTGRES_PW" default:"postgres"`
-		Port     int    `envconfig:"POSTGRES_PORT" default:"5433"`
-		DB       string `envconfig:"POSTGRES_DB" default:"postgres"`
-	}{}
-	err := envconfig.Process("", &dbCfg)
-	require.NoError(t, err)
-
-	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", dbCfg.Host, dbCfg.Port, dbCfg.User, dbCfg.Password, dbCfg.User)
-
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	require.NoError(t, err)
-	return db
-}
-
 func TestCachingCreatureRepo_GetCreature(t *testing.T) {
 	ctx := context.Background()
 	db := openTestDBConnection(t)
@@ -183,4 +164,23 @@ func TestCachingCreatureRepo_GetCreature_Concurrency(t *testing.T) {
 	barrier.Done()
 	wg.Wait()
 	// note - it would be good to ensure that only one call to the DB was made, but we can't :sad-panda:
+}
+
+func openTestDBConnection(t *testing.T) *sql.DB {
+	dbCfg := struct {
+		Host     string `envconfig:"POSTGRES_HOST" default:"127.0.0.1"`
+		User     string `envconfig:"POSTGRES_USER" default:"postgres"`
+		Password string `envconfig:"POSTGRES_PW" default:"postgres"`
+		Port     int    `envconfig:"POSTGRES_PORT" default:"5433"`
+		DB       string `envconfig:"POSTGRES_DB" default:"postgres"`
+	}{}
+	err := envconfig.Process("", &dbCfg)
+	require.NoError(t, err)
+
+	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", dbCfg.Host, dbCfg.Port, dbCfg.User, dbCfg.Password, dbCfg.User)
+
+	// open database
+	db, err := sql.Open("postgres", psqlconn)
+	require.NoError(t, err)
+	return db
 }

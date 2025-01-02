@@ -1,0 +1,9 @@
+with-expecter: true
+disable-version-string: true # reduce the friction from being on different mockery version
+all: true
+dir: "{{.InterfaceDir}}"
+filename: "mock_{{.InterfaceNameSnake}}_test.go"
+mockname: "{{.Mock}}{{.InterfaceName}}"
+inpackage: true
+packages:
+  github.com/jonsabados/srp-sample/srp:
