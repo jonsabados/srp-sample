@@ -11,6 +11,10 @@ type cachedLookupResult struct {
 	timestamp time.Time
 }
 
+func (c cachedLookupResult) expired(cacheDuration time.Duration) bool {
+	return time.Now().Sub(c.timestamp) > cacheDuration
+}
+
 type RawCreatureRepo interface {
 	CreateCreature(ctx context.Context, name, description string) (Creature, error)
 	GetCreature(ctx context.Context, id int64) (CreatureLookupResult, error)
@@ -51,7 +55,7 @@ func (c *CachingCreatureRepo) CreateCreature(ctx context.Context, name, descript
 
 func (c *CachingCreatureRepo) GetCreature(ctx context.Context, id int64) (CreatureLookupResult, error) {
 	c.cacheMutex.RLock()
-	if result, cached := c.cache[id]; cached && time.Now().Sub(result.timestamp) < c.cacheDuration {
+	if result, cached := c.cache[id]; cached && !result.expired(c.cacheDuration) {
 		c.cacheMutex.RUnlock()
 		return result.result, nil
 	}
@@ -59,7 +63,7 @@ func (c *CachingCreatureRepo) GetCreature(ctx context.Context, id int64) (Creatu
 	c.cacheMutex.Lock()
 	defer c.cacheMutex.Unlock()
 	// let's make sure another concurrent request didn't already do the query, and if so lets return its result
-	if result, cached := c.cache[id]; cached && time.Now().Sub(result.timestamp) < c.cacheDuration {
+	if result, cached := c.cache[id]; cached && !result.expired(c.cacheDuration) {
 		return result.result, nil
 	}
 	result, err := c.rawRepo.GetCreature(ctx, id)
