@@ -10,7 +10,7 @@ Within the [bbom](bbom) package there are three files:
 2) [caching_creature_repo.go](bbom/caching_creature_repo.go): This construct handles data access and caching
 3) [caching_creature_repo_test.go](bbom/caching_creature_repo_test.go): Unit tests for the repo construct
 
-In this example a single construct handles both the responsibility of accessing data, and caching it. In this model it is impossible to bypass the cache, and should the need arise additional functionality would need to be built and consumers would need to be explicitly aware of this functionality. Testing is also more complex, and some aspects, such as the cache being hit or not, require jumping through hoops or in some cases are [simply not testable](bbom/caching_creature_repo_test.go#L166).
+In this example a single construct handles both the responsibility of accessing data, and caching it. In this model it is impossible to bypass the cache, and should the need arise additional functionality would need to be built and consumers would need to be explicitly aware of this functionality. Testing is also more complex, and some aspects, such as the cache being hit or not, require jumping through hoops or in some cases are [simply not testable](bbom/caching_creature_repo_test.go#L182).
 
 ## Single Responsibility Version
 
