@@ -6,18 +6,28 @@ import (
 	"errors"
 )
 
-type CreatureRepo struct {
-	db *sql.DB
+type ConnectionOpener interface {
+	OpenConnection() (*sql.DB, error)
 }
 
-func NewCreatureRepo(db *sql.DB) *CreatureRepo {
+type CreatureRepo struct {
+	connectionOpener ConnectionOpener
+}
+
+func NewCreatureRepo(connectionOpener ConnectionOpener) *CreatureRepo {
 	return &CreatureRepo{
-		db: db,
+		connectionOpener: connectionOpener,
 	}
 }
 
 func (c *CreatureRepo) CreateCreature(ctx context.Context, name, description string) (Creature, error) {
-	stmt, err := c.db.PrepareContext(ctx, "insert into creatures (name, description) values ($1, $2) returning id")
+	db, err := c.connectionOpener.OpenConnection()
+	if err != nil {
+		return Creature{}, err
+	}
+	defer db.Close()
+
+	stmt, err := db.PrepareContext(ctx, "insert into creatures (name, description) values ($1, $2) returning id")
 	if err != nil {
 		return Creature{}, err
 	}
@@ -36,7 +46,13 @@ func (c *CreatureRepo) CreateCreature(ctx context.Context, name, description str
 }
 
 func (c *CreatureRepo) GetCreature(ctx context.Context, id int64) (CreatureLookupResult, error) {
-	stmt, err := c.db.PrepareContext(ctx, "select name, description from creatures where id=$1")
+	db, err := c.connectionOpener.OpenConnection()
+	if err != nil {
+		return CreatureLookupResult{}, err
+	}
+	defer db.Close()
+
+	stmt, err := db.PrepareContext(ctx, "select name, description from creatures where id=$1")
 	if err != nil {
 		return CreatureLookupResult{}, err
 	}
